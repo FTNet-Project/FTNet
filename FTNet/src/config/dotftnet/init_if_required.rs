@@ -1,23 +1,10 @@
 /// this function is called on startup, and initializes the FTNet directory if it doesn't exist
 #[tracing::instrument(skip(client_pools))]
 pub async fn init_if_required(
-    dir: Option<String>,
+    dir: &std::path::Path,
     client_pools: ftnet::http::client::ConnectionPools,
 ) -> eyre::Result<std::path::PathBuf> {
     use eyre::WrapErr;
-
-    let dir = match dir {
-        Some(dir) => dir.into(),
-        // https://docs.rs/directories/6.0.0/directories/struct.ProjectDirs.html#method.data_dir
-        None => match directories::ProjectDirs::from("com", "FifthTry", "FTNet") {
-            Some(dir) => dir.data_dir().to_path_buf(),
-            None => {
-                return Err(eyre::anyhow!(
-                    "dotFTNet init failed: can not find data dir when dir is not provided"
-                ));
-            }
-        },
-    };
 
     if !dir.exists() {
         // TODO: create the directory in an incomplete state, e.g., in the same parent,
@@ -39,5 +26,5 @@ pub async fn init_if_required(
         ftnet::Identity::create(&identities, client_pools).await?;
     }
 
-    Ok(dir)
+    Ok(dir.to_path_buf())
 }

@@ -7,6 +7,7 @@
 // Only the binary is using the following crates:
 use fastn_observer as _;
 use tracing_subscriber as _;
+use directories as _;
 
 extern crate self as ftnet;
 

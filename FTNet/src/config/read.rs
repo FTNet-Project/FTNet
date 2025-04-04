@@ -8,7 +8,7 @@ impl ftnet::Config {
     }
 
     pub async fn read(
-        dir: Option<String>,
+        dir: &std::path::Path,
         client_pools: ftnet::http::client::ConnectionPools,
     ) -> eyre::Result<Self> {
         let dir = ftnet::config::dotftnet::init_if_required(dir, client_pools)

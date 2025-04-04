@@ -12,7 +12,22 @@ async fn main() -> eyre::Result<()> {
             foreground,
             data_dir,
             control_port,
-        } => ftnet::start(foreground, data_dir, control_port).await,
+        } => {
+            let data_dir = match data_dir {
+                Some(dir) => dir.into(),
+                // https://docs.rs/directories/6.0.0/directories/struct.ProjectDirs.html#method.data_dir
+                None => match directories::ProjectDirs::from("com", "FifthTry", "FTNet") {
+                    Some(dir) => dir.data_dir().to_path_buf(),
+                    None => {
+                        return Err(eyre::anyhow!(
+                            "dotFTNet init failed: can not find data dir when dir is not provided"
+                        ));
+                    }
+                },
+            };
+
+            ftnet::start(foreground, data_dir, control_port).await
+        }
         ftnet::Command::TcpProxy { id, port } => {
             println!("Proxying TCP server to remote FTNet service with id: {id}, port: {port}");
             Ok(())
